@@ -1,0 +1,1414 @@
+\ProvidesPackage{ex_test}[2018/06/15 for Ex_test version 2.4.3, Tran Anh Tuan]
+\RequirePackage{ifthen}
+\RequirePackage{fancyhdr}
+\RequirePackage{multicol}
+\RequirePackage{answers}
+\RequirePackage{array}
+\RequirePackage{multirow}
+\RequirePackage{longtable}
+\RequirePackage[utf8]{vietnam}
+\RequirePackage{tikz}
+\RequirePackage{ntheorem}
+\RequirePackage{calc}
+\RequirePackage{etoolbox}
+\RequirePackage{probsoln}
+\RequirePackage{picinpar}
+\RequirePackage{filecontents}
+\RequirePackage{paralist}
+\RequirePackage{tabto}
+%Ẩn hiện công thức tự động
+\newlength\wsh
+\newlength\hsh
+\newlength\dsh
+\newcommand{\sh}[1]{%
+\settowidth\wsh{#1}%
+\settoheight\hsh{#1}%
+\settodepth\dsh{#1}%
+\raisebox{0pt}[\hsh][\dsh]{
+\rule{\wsh}{0.1pt}}}
+\newcommand{\TF}[1]{\EXboxTF{\textbf{\colorEX#1}}}
+\newcommand{\boxEX}[2][9pt]{%
+	\def\sizeboxEX{#1}%
+	\setbox1=\hbox{#2}%
+	\ \EXbox{#2}\ %
+}
+%Lệnh tagEX gán nhãn công thức thủ công
+\newcommand{\tagEX}[1]{%
+	\hfill{\rm (#1)}%
+	\par
+	\@ifnextchar\begin%
+	{\vspace{-\baselineskip}}
+	{}
+}
+%Đánh dấu phương án đúng
+\newcommand{\dapan}{Lệnh này giờ vô dụng}
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+            \node[shape=circle,draw,inner sep=1pt] (char) {#1};}}
+\newcommand*\circEX[1]{\tikz[baseline=(char.base)]{\node[shape=circle,draw=red,inner sep=1pt,fill=yellow!50] (char) {\color{red} #1};}}
+\newcommand*\squareEX[1]{\tikz[baseline=(char.base)]{\node[shape=rectangle,draw=red,inner sep=2.5pt,fill=yellow!50] (char) {\color{red} #1};}}
+\newcounter{dapan}
+\newcommand{\TrueEX}{\stepcounter{dapan}{\squareEX{\textbf{\Alph{dapan}}}}}
+\newcommand{\FalseEX}{\stepcounter{dapan}{\circled{\textbf{\Alph{dapan}}}}}
+\newlength\widthalpha
+\newlength\widthalphaT
+\newlength\widthalphaF
+\settowidth\widthalphaT{\TrueEX}
+\settowidth\widthalphaF{\FalseEX}
+\ifdim\widthalpha<\widthalphaT\relax\setlength{\widthalpha}{\widthalphaT}\fi%
+\ifdim\widthalpha<\widthalphaF\relax\setlength{\widthalpha}{\widthalphaF}\fi%
+\newcommand{\begindapan}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\TrueEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+}
+\newcommand{\begindapanhaiba}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\TrueEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+}
+%Hiện Chọn đáp án trong lời giải chi tiết
+\def\selectA{\par\noindent Chọn đáp án \circEX{A}}
+\def\selectB{\par\noindent Chọn đáp án \circEX{B}}
+\def\selectC{\par\noindent Chọn đáp án \circEX{C}}
+\def\selectD{\par\noindent Chọn đáp án \circEX{D}}
+\def\selectE{\par\noindent Chọn đáp án \circEX{E}}
+\newcommand{\hidetextchoice}{
+\def\selectA{}
+\def\selectB{}
+\def\selectC{}
+\def\selectD{}
+\def\selectE{}
+}
+\newcommand{\showtextchoice}{
+\def\selectA{\par\noindent Chọn đáp án \circEX{A}}
+\def\selectB{\par\noindent Chọn đáp án \circEX{B}}
+\def\selectC{\par\noindent Chọn đáp án \circEX{C}}
+\def\selectD{\par\noindent Chọn đáp án \circEX{D}}
+\def\selectE{\par\noindent Chọn đáp án \circEX{E}}
+}
+%Tương thích môi trường enumerate,itemize
+\def\hfillEX{}
+\BeforeBeginEnvironment{enumerate}
+{\hfillEX}
+\BeforeBeginEnvironment{itemize}
+{\hfillEX}
+\AtBeginEnvironment{multicols}
+{\def\hfillEX{}}
+\newcommand{\listenumerate}[1]{
+	\foreach \xenumerate in {#1} {%môi trường
+		\AtBeginEnvironment{\xenumerate}{
+			\def\hfillEX{\hfill}
+		}
+		\AtEndEnvironment{\xenumerate}{
+			\def\hfillEX{}
+		}
+}}
+\listenumerate{ex}
+%Danh sách môi trường hiện dòng kẻ trong lời giải
+\newcommand{\dotlineans}[2]{
+\AtBeginEnvironment{#2}{
+\def\colorEX{}
+\makeatletter
+\renewcommand{\begindapan}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+}
+\renewcommand{\begindapanhaiba}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+}
+\makeatletter
+\renewcommand{\loigiai}[1]{
+\dotlineEX{#1}
+}}}
+%Danh sách môi trường hiện dòng kẻ trong lời giải
+\newcommand{\showansEX}[1]{
+\AtBeginEnvironment{#1}{
+\makeatletter
+\renewcommand{\begindapan}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+}
+\renewcommand{\begindapanhaiba}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+}
+\def\True{\setcounter{numTrue}{\thedapan}\setcounter{numTrueSol}{\thedapan}}
+\def\loigiaiEX{\color{blue} Lời giải.}
+\showanswers
+%Xuất hiện chữ Lời giải trong môi trường onlysolution
+\renewcommand{\do@onlysolution}[1]{%
+\par\noindent\textbf{\loigiaiEX }
+\ifshowanswers
+ \@ifnextchar\immini
+{}
+{ \@ifnextchar\begin
+{}
+{\par\noindent}
+}
+##1%
+{}
+\fi
+\ifnum\the\value{numTrueSol}=1
+\selectA
+\fi
+\ifnum\the\value{numTrueSol}=2
+\selectB
+\fi
+\ifnum\the\value{numTrueSol}=3
+\selectC
+\fi
+\ifnum\the\value{numTrueSol}=4
+\selectD
+\fi
+\ifnum\the\value{numTrueSol}=5
+\selectE 
+\fi
+\setcounter{numTrueSol}{0}
+\hfill\qedEX\par
+}
+\renewcommand{\loigiai}[1]{
+\labelex
+\def\labelex{}
+\begin{onlysolution}
+##1
+\end{onlysolution}
+}
+}}
+%Danh sách môi trường hiện dòng kẻ trong lời giải
+\newcommand{\hideansEX}[1]{
+\AtBeginEnvironment{#1}{
+\makeatletter
+\renewcommand{\begindapan}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+}
+\renewcommand{\begindapanhaiba}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+}
+\def\colorEX{}
+\makeatletter
+\renewcommand{\begindapan}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+}
+\renewcommand{\begindapanhaiba}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+}
+\renewenvironment{onlysolution}{%
+   \long@collect@body\do@onlysolution
+}{}
+\renewcommand{\loigiai}[1]{
+}
+}}
+%Định nghĩa QED kết thúc chứng minh
+\def\qedEX{\ensuremath{\square}}
+%%Môi trường loigiai từ phiên bản  2.4.3
+%\makeatletter
+%\newenvironment{solEX}[1][]{%
+%   \setkeys{probsoln}{#1}%
+%   \long@collect@body\do@onlysolution
+%}{}
+%Đáp số câu hỏi tự luận
+\Newassociation{solshort}{Solshort}{ansshort}
+\renewcommand{\Solshortlabel}[1]{\color{violet}\textbf{#1.}
+}
+\newcommand{\shortsolnum}[1]
+{
+	\renewenvironment{Solshort}[1]
+	{\begin{minipage}{\linewidth/#1-1.2\fboxsep}
+\color{violet}\textbf{##1.}
+\color{black}
+		}
+		{\end{minipage}}
+}
+\newcommand{\shortsol}[1]{
+\scantokens{
+\begin{solshort}
+#1
+\end{solshort}}
+}
+%Trích dẫn nguồn
+\def\labelex{}
+
+\newcommand{\nameex}{Câu}
+%Dấu chấm, phảy sau mỗi phương án
+\def\dotEX{.}
+%Tương thích gói picinpar
+\def\picinpar{\setlength{\linewidth}{\linewidth}}
+\AtBeginEnvironment{window}{\def\picinpar{\setlength{\linewidth}{\linewidth-\picwd-\lwindowsep-2\fboxsep}}}
+%Tùy chọn lời giải
+\newcommand{\choicew}[1]{\setlength{\widthch}{#1}}
+\newcommand{\loigiai}[1]{
+\begin{onlysolution}
+#1
+\end{onlysolution}
+}
+\def\colorEX{\color{red}}
+\newcounter{numTrue}
+\newcounter{numTrueSol}
+\DeclareOption{solcolor}{
+\renewcommand{\TF}[1]{\EXboxTF{\textbf{\colorEX#1}}}
+\renewcommand{\boxEX}[2][9pt]{%
+	\setbox1=\hbox{#2}%
+	\def\sizeboxEX{#1}%
+    \ \EXbox{#2}\ %
+}
+\renewcommand{\sh}[1]{#1}
+\renewcommand{\TrueEX}{\stepcounter{dapan}{\squareEX{\textbf{\Alph{dapan}}}}}
+\renewcommand{\FalseEX}{\stepcounter{dapan}{\circled{\textbf{\Alph{dapan}}}}}
+\makeatletter
+\renewcommand{\begindapan}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\TrueEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+}
+\renewcommand{\begindapanhaiba}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\TrueEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+}
+\def\True{\leavevmode\colorEX\setcounter{numTrue}{\thedapan}\setcounter{numTrueSol}{\thedapan}}
+\def\loigiaiEX{\color{blue} Lời giải.}
+\showanswers
+%Xuất hiện chữ Lời giải trong môi trường onlysolution
+\renewcommand{\do@onlysolution}[1]{%
+\par\noindent\textbf{\loigiaiEX }
+\ifshowanswers
+ \@ifnextchar\immini
+{}
+{ \@ifnextchar\begin
+{}
+{\par\noindent}
+}
+#1%
+{}
+\fi
+\ifnum\the\value{numTrueSol}=1
+\selectA
+\fi
+\ifnum\the\value{numTrueSol}=2
+\selectB
+\fi
+\ifnum\the\value{numTrueSol}=3
+\selectC
+\fi
+\ifnum\the\value{numTrueSol}=4
+\selectD
+\fi
+\ifnum\the\value{numTrueSol}=5
+\selectE 
+\fi
+\setcounter{numTrueSol}{0}
+\hfill\qedEX\par
+}
+\renewcommand{\loigiai}[1]{
+\labelex
+\def\labelex{}
+\begin{onlysolution}
+#1
+\end{onlysolution}
+}
+}
+\DeclareOption{loigiai}{
+\renewcommand{\TF}[1]{\EXboxTF{\textbf{\colorEX#1}}}
+\renewcommand{\boxEX}[2][9pt]{%
+	\setbox1=\hbox{#2}%
+	\def\sizeboxEX{#1}%
+	\ \EXbox{#2}\ %
+}
+\renewcommand{\sh}[1]{#1}
+\renewcommand{\FalseEX}{\stepcounter{dapan}{\textbf{\Alph{dapan}}}.}
+\makeatletter
+\renewcommand{\begindapan}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+}
+\renewcommand{\begindapanhaiba}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+}
+\def\True{\setcounter{numTrue}{\thedapan}\setcounter{numTrueSol}{\thedapan}}
+\def\loigiaiEX{\color{blue} Lời giải.}
+\showanswers
+%Xuất hiện chữ Lời giải trong môi trường onlysolution
+\renewcommand{\do@onlysolution}[1]{%
+\par\noindent\textbf{\loigiaiEX }
+\ifshowanswers
+ \@ifnextchar\immini
+{}
+{ \@ifnextchar\begin
+{}
+{\par\noindent}
+}
+#1%
+{}
+\fi
+\ifnum\the\value{numTrueSol}=1
+\selectA
+\fi
+\ifnum\the\value{numTrueSol}=2
+\selectB
+\fi
+\ifnum\the\value{numTrueSol}=3
+\selectC
+\fi
+\ifnum\the\value{numTrueSol}=4
+\selectD
+\fi
+\ifnum\the\value{numTrueSol}=5
+\selectE 
+\fi
+\setcounter{numTrueSol}{0}
+\hfill\qedEX\par
+}
+\renewcommand{\loigiai}[1]{
+\labelex
+\def\labelex{}
+\begin{onlysolution}
+#1
+\end{onlysolution}
+}
+}
+\DeclareOption{color}{
+\renewcommand{\TrueEX}{\stepcounter{dapan}{\squareEX{\textbf{\Alph{dapan}}}}}
+\renewcommand{\FalseEX}{\stepcounter{dapan}{\circled{\textbf{\Alph{dapan}}}}}
+\makeatletter
+\renewcommand{\begindapan}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\TrueEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+}
+\renewcommand{\begindapanhaiba}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\TrueEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+}
+\def\colorEX{\color{red}}
+\def\True{\leavevmode\colorEX\setcounter{numTrue}{\thedapan}\setcounter{numTrueSol}{\thedapan}}
+}
+\DeclareOption{book}{
+\renewcommand{\TrueEX}{\stepcounter{dapan}{\squareEX{\textbf{\Alph{dapan}}}}}
+\renewcommand{\FalseEX}{\stepcounter{dapan}{\circled{\textbf{\Alph{dapan}}}}}
+\makeatletter
+\renewcommand{\begindapan}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+}
+\renewcommand{\begindapanhaiba}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+}
+\def\loigiaiEX{\color{blue} Lời giải.}
+\showanswers
+\makeatletter
+\renewcommand{\loigiai}[1]{
+\labelex
+\def\labelex{}
+\ifnum\the\value{numTrueSol}=1
+\scantokens{
+\begin{solbook}
+\par\noindent
+#1
+\par\noindent
+Ta chọn đáp án \circEX{A}
+\hfill\qedEX
+\end{solbook}}
+\fi
+\ifnum\the\value{numTrueSol}=2
+\scantokens{
+\begin{solbook}
+\par\noindent
+#1
+\par\noindent
+Ta chọn đáp án \circEX{B}
+\hfill\qedEX
+\end{solbook}}
+\fi
+\ifnum\the\value{numTrueSol}=3
+\scantokens{
+\begin{solbook}
+\par\noindent
+#1
+\par\noindent
+Ta chọn đáp án \circEX{C}
+\hfill\qedEX
+\end{solbook}}
+\fi
+\ifnum\the\value{numTrueSol}=4
+\scantokens{
+\begin{solbook}
+\par\noindent
+#1
+\par\noindent
+Ta chọn đáp án \circEX{D}
+\hfill\qedEX
+\end{solbook}}
+\fi
+\ifnum\the\value{numTrueSol}=5
+\scantokens{
+\begin{solbook}
+\par\noindent
+#1
+\par\noindent
+Ta chọn đáp án \circEX{E}
+\hfill\qedEX
+\end{solbook}}
+\fi
+\ifnum\the\value{numTrueSol}=0
+\scantokens{
+\begin{solbook}
+\par\noindent
+#1
+\hfill\qedEX
+\end{solbook}}
+\fi
+\setcounter{numTrueSol}{0}
+}
+\def\True{\setcounter{numTrue}{\thedapan}\setcounter{numTrueSol}{\thedapan}} 
+}
+\DeclareOption{dethi}{
+\renewcommand{\TF}[1]{\EXboxTF{}}
+\renewcommand{\boxEX}[2][9pt]{%
+	\def\sizeboxEX{#1}%
+	\setbox1=\hbox{#2}%
+	\ \EXbox{}\ %
+}
+\renewcommand{\FalseEX}{\stepcounter{dapan}{\textbf{\Alph{dapan}}}.}
+\makeatletter
+\renewcommand{\begindapan}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{\dorong}
+}
+}
+\renewcommand{\begindapanhaiba}{
+\@ifnextchar\True
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+{
+\begin{minipage}[t]{\widthalpha}
+\FalseEX
+\end{minipage}
+\begin{minipage}[t]{0.67\dorong}
+}
+}
+\def\True{\setcounter{numTrue}{\thedapan}\setcounter{numTrueSol}{\thedapan}} 
+}
+\ExecuteOptions{dethi}
+\ProcessOptions
+%Nội dung gói ex_test
+\theorempreskipamount0.1\baselineskip
+\theorempostskipamount0.2\baselineskip
+\newlength\dorongfix
+\dorongfix=\linewidth
+\newlength\dorong
+\dorong=\linewidth
+\makeatletter
+\newtheoremstyle{exbreak}%
+  {\item[\hskip\labelsep \theorem@headerfont ##1\ ##2\theorem@separator]}%
+  {\item\hbox to \linewidth{\theorem@headerfont ##1\ ##2\
+      (##3)\theorem@separator\hfill}}
+\newtheoremstyle{explain}%
+  {\item[\hskip\labelsep \theorem@headerfont ##1\ ##2\theorem@separator]}%
+  {\item[\hskip\labelsep \theorem@headerfont ##1\ ##2\theorem@separator]\def\labelex{
+\begin{flushright}
+\vspace*{-5pt}
+\textit{\textbf{(##3)}}
+\vspace*{-5pt}
+\end{flushright}}}
+%Danh sách môi trường trích dẫn nguồn câu hỏi
+\newcommand{\listtheorem}[1]{
+\foreach \x in {#1} {%môi trường
+\AtEndEnvironment{\x}{
+\labelex
+}}}
+\makeatother
+%\theoremstyle{explain}
+\theoremseparator{.}
+\theorembodyfont{\rm}
+\Newassociation{solbook}{Solbook}{ansbook}
+\renewcommand{\Solbooklabel}[1]{\textbf{\nameex\ #1.}
+}
+\Newassociation{EXsol}{Solution}{ans}
+\Newassociation{sol}{Solution}{ans_old}
+\newtheorem{ex}{\nameex}
+\AtBeginEnvironment{Solbook}{
+\renewcommand{\IMleftright}[3]{
+\par\noindent
+	\begin{minipage}[t][][t]{\linewidth-\widthimmini-\fboxsep-#1\linewidth}
+		#2
+	\end{minipage}
+	\hspace{#1\linewidth}
+	\begin{minipage}[t][][b]{\widthimmini}\vspaceIM
+		#3
+	\end{minipage}
+	\par\nointerlineskip
+}
+}
+\AtBeginEnvironment{ex}{
+	\setcounter{numTrueSol}{0}
+	\def\dotEX{.}
+	\setcounter{numChoice}{0}
+}
+\AtEndEnvironment{ex}{
+\ifnum\the\value{numTrue}=1
+\scantokens{\begin{EXsol}A\end{EXsol}}
+\fi
+\ifnum\the\value{numTrue}=2
+\scantokens{\begin{EXsol}B\end{EXsol}}
+\fi
+\ifnum\the\value{numTrue}=3
+\scantokens{\begin{EXsol}C\end{EXsol}}
+\fi
+\ifnum\the\value{numTrue}=4
+\scantokens{\begin{EXsol}D\end{EXsol}}
+\fi
+\ifnum\the\value{numTrue}=5
+\scantokens{\begin{EXsol}E\end{EXsol}}
+\fi
+\setcounter{numTrue}{0}
+\setcounter{numTrueSol}{0}
+\labelex
+}
+\newtheorem{vdex}{Ví dụ}
+\AtBeginEnvironment{vdex}{\setcounter{numTrueSol}{0}\def\dotEX{.}}
+\newcommand{\boncot}[4]{
+\picinpar
+\setlength{\dorong}{0.25\linewidth-0.02\dorongfix-\widthalpha-2\fboxsep}
+\par\setcounter{dapan}{0}
+\noindent\hspace{0.02\dorongfix}\begindapan
+#1\dotEX
+\end{minipage}
+\noindent\begindapan
+#2\dotEX
+\end{minipage}
+\noindent\begindapan
+#3\dotEX
+\end{minipage}
+\noindent\begindapan
+#4\dotEX
+\end{minipage}
+
+}
+\newcommand{\haicot}[4]{
+\picinpar
+\setlength{\dorong}{0.5\linewidth-0.02\dorongfix-\widthalpha-2\fboxsep}
+\par\setcounter{dapan}{0}
+\noindent\hspace{0.02\dorongfix}\begindapan
+#1\dotEX
+\end{minipage}
+\noindent\begindapan
+#2\dotEX
+\end{minipage}
+\par\noindent\hspace{0.02\dorongfix}\begindapan
+#3\dotEX
+\end{minipage}
+\noindent\begindapan
+#4\dotEX
+\end{minipage}
+
+}
+\newcommand{\motcot}[4]{
+\picinpar
+\setlength{\dorong}{\linewidth-0.02\dorongfix-\widthalpha-2\fboxsep}
+\par\setcounter{dapan}{0}
+\noindent\hspace{0.02\dorongfix}\begindapan
+#1\dotEX\strut
+\end{minipage}
+
+\noindent\hspace{0.02\dorongfix}\begindapan
+#2\dotEX\strut
+\end{minipage}
+
+\noindent\hspace{0.02\dorongfix}\begindapan
+#3\dotEX\strut
+\end{minipage}
+
+\noindent\hspace{0.02\dorongfix}\begindapan
+#4\dotEX\strut
+\end{minipage}
+
+}
+%%%%%%%Tự động chọn \motcot, \haicot, \boncot
+      \newlength\widthcha
+        \newlength\widthchb
+        \newlength\widthchc
+        \newlength\widthchd
+        \newlength\widthche
+        \newlength\widthch
+        \newlength\tabmaxwidth
+        \newlength\fourthtabwidth
+        \newlength\halftabwidth
+        \newlength\fifthtabwidth
+        \newlength\thirdtabwidth
+      \newcommand{\choice}[4]{%
+       \setlength\tabmaxwidth{\linewidth-0.02\dorongfix-\widthalpha-2\fboxsep}
+        \setlength\fourthtabwidth{0.25\linewidth-0.02\dorongfix-\widthalpha-2\fboxsep}
+        \setlength\halftabwidth{0.5\linewidth-0.02\dorongfix-\widthalpha-2\fboxsep}
+      \settowidth\widthcha{#1}
+      \ifdim\widthch<\widthcha\relax\setlength{\widthch}{\widthcha}\fi%
+      \settowidth\widthchb{#2}%
+      \ifdim\widthch<\widthchb\relax\setlength{\widthch}{\widthchb}\fi%
+      \settowidth\widthchc{#3}%
+      \ifdim\widthch<\widthchc\relax\setlength{\widthch}{\widthchc}\fi%
+      \settowidth\widthchd{#4}%
+      \ifdim\widthch<\widthchd\relax\setlength{\widthch}{\widthchd}\fi%
+      \ifdim\widthch<\fourthtabwidth
+        \boncot{#1}{#2}{#3}{#4}
+      \else\ifdim\widthch<\halftabwidth
+          \haicot{#1}{#2}{#3}{#4}
+        \else
+          \motcot{#1}{#2}{#3}{#4}
+      \fi\fi
+    }
+      \newcommand{\choicefix}[4]{%
+       \setlength\tabmaxwidth{\linewidth-0.02\dorongfix-\widthalpha-2\fboxsep}
+       \setlength\fourthtabwidth{0.25\linewidth-0.02\dorongfix-\widthalpha-2\fboxsep}
+       \setlength\halftabwidth{0.5\linewidth-0.02\dorongfix-\widthalpha-2\fboxsep}
+       \settowidth\widthcha{#1}
+       \ifdim\widthch<\widthcha\relax\setlength{\widthch}{\widthcha}\fi%
+       \settowidth\widthchb{#2}%
+       \ifdim\widthch<\widthchb\relax\setlength{\widthch}{\widthchb}\fi%
+       \settowidth\widthchc{#3}%
+       \ifdim\widthch<\widthchc\relax\setlength{\widthch}{\widthchc}\fi%
+       \settowidth\widthchd{#4}%
+       \ifdim\widthch<\widthchd\relax\setlength{\widthch}{\widthchd}\fi%
+       \ifdim\widthch<\fourthtabwidth
+       \boncot{#1}{#2}{#3}{#4}
+       \else\ifdim\widthch<\halftabwidth
+       \haicot{#1}{#2}{#3}{#4}
+       \else
+       \motcot{#1}{#2}{#3}{#4}
+       \fi\fi
+    }
+%Trắc nghiệm 5 lựa chọn
+\newcommand{\nammot}[5]{
+	\picinpar
+	\setlength{\dorong}{0.2\linewidth-0.022\dorongfix-2\fboxsep-\widthalpha}
+	\par\setcounter{dapan}{0}
+	\noindent\hspace{0.02\dorongfix}\begindapan
+	#1\dotEX
+	\end{minipage}
+	\noindent\begindapan
+	#2\dotEX
+	\end{minipage}
+	\noindent\begindapan
+	#3\dotEX
+	\end{minipage}
+	\noindent\begindapan
+	#4\dotEX
+	\end{minipage}
+	\noindent\begindapan
+	#5\dotEX
+	\end{minipage}
+
+}
+\newcommand{\bahai}[5]{
+	\picinpar
+	\setlength{\dorong}{0.5\linewidth-0.02\dorongfix-\fboxsep-3\widthalpha}
+	\setcounter{dapan}{0}
+	\par\noindent\hspace{0.02\dorongfix}\begindapanhaiba
+	#1\dotEX
+	\end{minipage}
+	\noindent\begindapanhaiba
+	#2\dotEX
+	\end{minipage}
+	\noindent\begindapanhaiba
+	#3\dotEX
+	\end{minipage}
+	\par\noindent\hspace{0.02\dorongfix}\begindapan
+	#4\dotEX
+	\end{minipage}
+	\noindent\begindapan
+	#5\dotEX
+	\end{minipage}
+
+}
+
+\newcommand{\haiba}[5]{
+	\picinpar
+	\setlength{\dorong}{0.5\linewidth-0.02\dorongfix-\fboxsep-3\widthalpha}
+	\setcounter{dapan}{0}
+	\par\noindent\hspace{0.02\dorongfix}\begindapan
+	#1\dotEX
+	\end{minipage}
+	\noindent\begindapan
+	#2\dotEX
+	\end{minipage}
+	\par\noindent\hspace{0.02\dorongfix}\begindapanhaiba
+	#3\dotEX
+	\end{minipage}
+	\noindent\begindapanhaiba
+	#4\dotEX
+	\end{minipage}
+	\noindent\begindapanhaiba
+	#5\dotEX
+	\end{minipage}
+
+}
+\newcommand{\motnam}[5]{
+	\picinpar
+	\setlength{\dorong}{\linewidth-0.02\dorongfix-\fboxsep-2\widthalpha}
+	\par\setcounter{dapan}{0}
+	\noindent\hspace{0.02\dorongfix}\begindapan
+	#1\dotEX\strut
+	\end{minipage}
+	\par\noindent\hspace{0.02\dorongfix}\begindapan
+	#2\dotEX\strut
+	\end{minipage}
+	\par\noindent\hspace{0.02\dorongfix}\begindapan
+	#3\dotEX\strut
+	\end{minipage}
+	\par\noindent\hspace{0.02\dorongfix}\begindapan
+	#4\dotEX\strut
+	\end{minipage}
+	\par\noindent\hspace{0.02\dorongfix}\begindapan
+	#5\dotEX\strut
+	\end{minipage}
+
+}
+\newlength\wmothai
+\newlength\wmothaiba
+\newlength\wmothaibabon
+\newlength\wbonnam
+\newlength\wbabonnam
+\newlength\whaibabonnam
+\newcounter{numChoice}
+\newcommand{\choicefive}[5]{%
+	\setlength\tabmaxwidth{\linewidth-\picwd-\lwindowsep}
+	\setlength\fourthtabwidth{0.25\linewidth-0.25\picwd-0.25\lwindowsep-\widthalpha}
+	\setlength\halftabwidth{0.5\linewidth-0.5\picwd-0.5\lwindowsep-\widthalpha}
+	\setlength\fifthtabwidth{0.2\linewidth-0.2\picwd-0.2\lwindowsep-\widthalpha}
+	\setlength\thirdtabwidth{0.33\linewidth-0.33\picwd-0.33\lwindowsep-\widthalpha}
+	\settowidth\widthcha{AM.#1}
+	\ifdim\widthch<\widthcha\relax\setlength{\widthch}{\widthcha}\fi%
+	\ifdim\wmothai<\widthcha\relax\setlength{\wmothai}{\widthcha}\fi%
+	\ifdim\wmothaiba<\widthcha\relax\setlength{\wmothaiba}{\widthcha}\fi%
+	\ifdim\wmothaibabon<\widthcha\relax\setlength{\wmothaibabon}{\widthcha}\fi%
+	\settowidth\widthchb{BM.#2}%
+	\ifdim\widthch<\widthchb\relax\setlength{\widthch}{\widthchb}\fi%
+	\ifdim\wmothai<\widthchb\relax\setlength{\wmothai}{\widthchb}\fi%
+	\ifdim\wmothaiba<\widthchb\relax\setlength{\wmothaiba}{\widthchb}\fi%
+	\ifdim\wmothaibabon<\widthchb\relax\setlength{\wmothaibabon}{\widthchb}
+	\fi%
+	\ifdim\whaibabonnam<\widthchb\relax\setlength{\whaibabonnam}{\widthchb}
+	\fi%
+	\settowidth\widthchc{CM.#3}%
+	\ifdim\widthch<\widthchc\relax\setlength{\widthch}{\widthchc}\fi%
+	\ifdim\wmothaiba<\widthchc\relax\setlength{\wmothaiba}{\widthchc}\fi%
+	\ifdim\wmothaibabon<\widthchc\relax\setlength{\wmothaibabon}{\widthchc}\fi%
+	\ifdim\wbabonnam<\widthchc\relax\setlength{\wbabonnam}{\widthchc}\fi%
+	\ifdim\whaibabonnam<\widthchc\relax\setlength{\whaibabonnam}{\widthchc}
+	\fi%
+	\settowidth\widthchd{DM.#4}%
+	\ifdim\widthch<\widthchd\relax\setlength{\widthch}{\widthchd}\fi%
+	\ifdim\wmothaibabon<\widthchd\relax\setlength{\wmothaibabon}{\widthchd}\fi%
+	\ifdim\wbabonnam<\widthchd\relax\setlength{\wbabonnam}{\widthchd}\fi%
+	\ifdim\wbonnam<\widthchd\relax\setlength{\wbonnam}{\widthchd}\fi%
+	\ifdim\whaibabonnam<\widthchd\relax\setlength{\whaibabonnam}{\widthchd}
+	\fi%
+	\settowidth\widthche{EM.#5}%
+	\ifdim\widthch<\widthche\relax\setlength{\widthch}{\widthche}\fi%
+	\ifdim\wbabonnam<\widthche\relax\setlength{\wbabonnam}{\widthche}\fi%
+	\ifdim\wbonnam<\widthche\relax\setlength{\wbonnam}{\widthche}\fi%
+	\ifdim\whaibabonnam<\widthchd\relax\setlength{\whaibabonnam}{\widthchd}
+	\fi%
+	%Khởi tạo điều kiện 
+	\setcounter{numChoice}{0}
+	\ifdim\wmothai<\halftabwidth
+	\ifdim\wbabonnam<\thirdtabwidth	
+	\setcounter{numChoice}{1}
+	\fi\fi
+	\ifdim\wmothaiba<\thirdtabwidth	
+	\ifdim\wbonnam<\halftabwidth
+	\setcounter{numChoice}{2}
+	\fi\fi
+	\ifdim\widthch<\fifthtabwidth
+	\setcounter{numChoice}{3}
+	\fi
+	%Lựa chọn cách sắp xếp
+	\ifnum\the\value{numChoice}=3
+	\nammot{#1}{#2}{#3}{#4}{#5}
+	\else
+	\ifnum\the\value{numChoice}=2
+	\bahai{#1}{#2}{#3}{#4}{#5}
+	\else
+	\ifnum\the\value{numChoice}=1
+	\haiba{#1}{#2}{#3}{#4}{#5}
+	\else
+	\motnam{#1}{#2}{#3}{#4}{#5}
+	\fi\fi\fi
+}
+%HẾT trắc nghiệm 5 lựa chọn
+%Các phương pháp đưa hình vào văn bản
+\def\vspaceIM{\vspace{-13pt}}
+\def\breakIM{}
+\def\numpicinpar{0}
+\newdimen\widthimmini
+\newdimen\heightimmini
+\newdimen\spaceleft
+\newbox\imbox
+\newcommand{\hspaceIM}[1]{
+	\def\hspaceIMEX{\hspace{#1\linewidth}}
+	\def\hspaceEXIM{#1\linewidth}
+}
+\newcommand{\IMleftright}[3]{
+	\hfill\par\noindent
+	\begin{minipage}[t][][t]{\linewidth-\widthimmini-\fboxsep-#1\linewidth}
+		#2
+	\end{minipage}
+	\hspace{#1\linewidth}
+	\begin{minipage}[t][][b]{\widthimmini}\vspaceIM
+		#3
+	\end{minipage}
+	\par\nointerlineskip
+}
+\newcommand{\immini}[3][0]{
+	\setbox\imbox=\vbox{\hbox{#3}}
+	\widthimmini=\wd\imbox
+	\heightimmini=\ht\imbox
+	\spaceleft=\dimexpr\textheight-\pagetotal-2\baselineskip\relax
+	\ifdim\heightimmini>\spaceleft
+	\breakIM
+	\fi
+	\IMleftright{#1}{#2}{#3}
+}
+\newcommand{\impicinpar}[2]{
+\begin{window}[\numpicinpar,r,{
+#2
+}, {}]
+\begin{flushleft}
+#1
+\end{flushleft}
+\end{window}
+}
+%Hết cách đưa hình vào văn bản
+
+% Biểu diễn khoảng, đoạn trên trục số
+\usetikzlibrary{decorations.pathreplacing,decorations.markings,patterns}
+\def\colorInterval{black}
+\def\skipInterval{0.4cm}
+\newcommand{\Interval}[4]{%
+        \coordinate [label={center:$#1$},label=below:$\rule{0pt}{\skipInterval}#2$] (a) at (#2,0); 
+        \coordinate [label={center:$#3$},label=below:$\rule{0pt}{\skipInterval}#4$] (b) at (#4,0); 
+        \draw[color=\colorInterval] decorate[decoration={ticks,amplitude=3pt,segment length=1mm}] {(a)--(b)};
+}
+\newcommand{\IntervalR}[4]{%
+        \coordinate [label={center:$#1$},label=below:$\rule{0pt}{\skipInterval}#2$] (a) at (#2,0); 
+        \coordinate [label={center:$#3$},label=below:$\rule{0pt}{\skipInterval}#4$] (b) at (#4,0); 
+        \draw decorate[decoration={markings,mark=% actually add a mark
+      between positions 0 and 1 step 1mm
+      with
+      {
+\draw[color=\colorInterval] (-3pt,-3pt) -- (3pt,3pt);
+      }}] {(a)--(b)};
+}
+\newcommand{\IntervalL}[4]{%
+        \coordinate [label={center:$#1$},label=below:$\rule{0pt}{\skipInterval}#2$] (a) at (#2,0); 
+        \coordinate [label={center:$#3$},label=below:$\rule{0pt}{\skipInterval}#4$] (b) at (#4,0); 
+        \draw decorate[decoration={
+		markings,
+		mark=between positions 0 and 1 step 1mm
+      	with
+      	{
+		\draw[color=\colorInterval] (-3pt,3pt) -- (3pt,-3pt);
+      	}
+		}
+		] {(a)--(b)};
+}
+\newcommand{\IntervalLF}[4]{%
+        \coordinate [label={center:$#1$},label=below:$\rule{0pt}{\skipInterval}#2$] (a) at (#2,0); 
+        \coordinate [label={center:$#3$},label=below:$\rule{0pt}{\skipInterval}#4$] (b) at (#4,0); 
+   		\fill[pattern=north west lines,pattern color=\colorInterval](#2,-3pt)rectangle(#4,3pt);
+}
+\newcommand{\IntervalRF}[4]{%
+        \coordinate [label={center:$#1$},label=below:$\rule{0pt}{\skipInterval}#2$] (a) at (#2,0); 
+        \coordinate [label={center:$#3$},label=below:$\rule{0pt}{\skipInterval}#4$] (b) at (#4,0); 
+   		\fill[pattern=north east lines,pattern color=\colorInterval](#2,-3pt)rectangle(#4,3pt);
+}
+\def\pre{0}
+\def\next{2}
+\newcommand{\IntervalLR}[2]{
+\def\pre{#1}
+\def\next{#2}
+}
+\newcommand{\IntervalG}[4]{%
+        \coordinate [label={center:$#1$},label=below:$\rule{0pt}{\skipInterval}#2$] (a) at (\pre,0); 
+        \coordinate [label={center:$#3$},label=below:$\rule{0pt}{\skipInterval}#4$] (b) at (\next,0); 
+       \draw[color=\colorInterval] decorate[decoration={ticks,amplitude=3pt,segment length=1mm}] {(a)--(b)};
+}
+\newcommand{\IntervalGL}[4]{%
+        \coordinate [label={center:$#1$},label=below:$\rule{0pt}{\skipInterval}#2$] (a) at (\pre,0); 
+        \coordinate [label={center:$#3$},label=below:$\rule{0pt}{\skipInterval}#4$] (b) at (\next,0); 
+        \draw decorate[decoration={markings,mark=% actually add a mark
+      between positions 0 and 1 step 1mm
+      with
+      {
+\draw[color=\colorInterval] (-3pt,3pt) -- (3pt,-3pt);
+      }}] {(a)--(b)};
+}
+\newcommand{\IntervalGR}[4]{%
+        \coordinate [label={center:$#1$},label=below:$\rule{0pt}{\skipInterval}#2$] (a) at (\pre,0); 
+        \coordinate [label={center:$#3$},label=below:$\rule{0pt}{\skipInterval}#4$] (b) at (\next,0); 
+        \draw decorate[decoration={markings,mark=% actually add a mark
+      between positions 0 and 1 step 1mm
+      with
+      {
+\draw[color=\colorInterval] (-3pt,-3pt) -- (3pt,3pt);
+      }}] {(a)--(b)};
+}
+
+\newcommand{\IntervalGLF}[4]{%
+        \coordinate [label={center:$#1$},label=below:$\rule{0pt}{\skipInterval}#2$] (a) at (\pre,0); 
+        \coordinate [label={center:$#3$},label=below:$\rule{0pt}{\skipInterval}#4$] (b) at (\next,0); 
+        \fill[pattern=north west lines,pattern color=\colorInterval](\pre,-3pt)rectangle(\next,3pt);
+}
+\newcommand{\IntervalGRF}[4]{%
+        \coordinate [label={center:$#1$},label=below:$\rule{0pt}{\skipInterval}#2$] (a) at (\pre,0); 
+        \coordinate [label={center:$#3$},label=below:$\rule{0pt}{\skipInterval}#4$] (b) at (\next,0); 
+        \fill[pattern=north east lines,pattern color=\colorInterval](\pre,-3pt)rectangle(\next,3pt);
+}
+%Định nghĩa dots fill
+\newcommand{\dotlineEX}[1]{
+	\def\numlinedot{#1}
+	\par
+	\foreach \dotline in{1,...,\numlinedot}
+	{
+		\noindent\dotfill
+		\par
+	}
+}
+%Liệt kê danh sách đáp án
+\newsavebox{\myboxans}
+\newcommand{\boxans}
+{
+\renewenvironment{Solution}[1]
+{\begin{lrbox}{\myboxans}\begin{minipage}{0.1\linewidth-4\fboxsep}
+				\parbox[b]{0.55\linewidth}{\color{blue}##1.}
+				\color{violet}
+}
+{\end{minipage}\end{lrbox}\fbox{\usebox{\myboxans}}}
+}
+\newcommand{\listans}
+{
+\renewenvironment{Solution}[1]
+{{\color{blue}##1}\hspace*{-4pt}}
+{\hspace*{-5pt}}
+}
+\newcommand{\tabans}[1]
+{
+	\renewenvironment{Solution}[1]
+	{\begin{minipage}{\linewidth/#1-1.2\fboxsep}
+			\parbox[b]{0.45\linewidth}{
+			\raggedleft\color{blue}##1.
+			}
+			\color{violet}
+		}
+		{\end{minipage}}
+}
+\newcommand{\rowans}
+{
+	\renewenvironment{Solution}[1]
+	{\begin{minipage}{0.1\linewidth-1.2\fboxsep}
+			\parbox[b]{0.45\linewidth}{
+			\raggedleft\color{blue}##1.
+			}
+			\color{violet}
+		}
+		{\end{minipage}}
+}
+\newcommand{\inputans}[2]{
+	\renewenvironment{Solution}[1]
+	{\begin{minipage}{\linewidth/#1-1.2\fboxsep}
+			\parbox[b]{0.45\linewidth}{
+				\raggedleft\color{blue}##1.
+			}
+			\color{violet}
+		}
+		{\end{minipage}}
+\begin{flushleft}
+\input{#2} 
+\end{flushleft}
+}
+\newcommand{\inputansbox}[2]{
+\renewenvironment{Solution}[1]
+{\begin{lrbox}{\myboxans}\begin{minipage}{\linewidth/#1-4\fboxsep}
+				\parbox[b]{0.55\linewidth}{\color{blue}##1.}
+				\color{violet}
+}
+{\end{minipage}\end{lrbox}\fbox{\usebox{\myboxans}}}
+\begin{flushleft}
+\input{#2} 
+\end{flushleft}
+}
+\makeatletter
+\@ifclasswith{article}{a5paper}
+{%
+	\renewcommand{\rowans}
+	{
+		\renewenvironment{Solution}[1]
+		{\begin{minipage}{0.2\linewidth-1.2\fboxsep}
+				\parbox[b]{0.45\linewidth}{\color{blue}##1.}
+				\color{violet}
+			}
+			{\end{minipage}}
+	}
+}{%
+}
+\@ifclasswith{book}{a5paper}
+{%
+	\renewcommand{\rowans}
+	{
+		\renewenvironment{Solution}[1]
+		{\begin{minipage}{0.2\linewidth-1.2\fboxsep}
+				\parbox[b]{0.45\linewidth}{\color{blue}##1.}
+				\color{violet}
+			}
+			{\end{minipage}}
+	}
+}{%
+}
+\makeatother
+%Hỗ trợ gói ex_test_rd
+\newenvironment{fileEX}{\filecontents}{\endfilecontents}
+\newcommand{\bankEX}[2]{
+\input{#1}
+}
+\newtheorem{exrd}{Câu}
+\def\listfile{
+\bankEX{onefile.tex}{50}
+}
+\def\testname{
+\begin{center}
+\textbf{ĐỀ THI MẪU}
+\end{center}
+\rightline{
+\setlength\fboxrule{2pt} 
+\setlength\fboxsep{5pt} 
+\fbox{\textbf{Mã đề thi\ \x}}
+}
+}
+\newcommand{\randombank}[1]{
+%\testname
+\begin{center}
+\textbf{
+\color{red}
+Bạn đang chạy bằng gói ex\_test xuất ra MỌI CÂU HỎI của ngân hàng nhằm soát lỗi.\\
+Khi mọi thứ đã OK, hãy thay khai báo gói ex\_test  bằng gói ex\_test\_rd
+}
+\end{center}
+\Opensolutionfile{ans}[ans/ans_ex_test]
+\listfile
+\Closesolutionfile{ans}
+}
+\newcommand{\showansfull}{\par Các mã đề: }
+\newcommand{\showans}{\par Các mã đề: }
+%Đường tròn LG
+\usetikzlibrary{plotmarks}
+\newcommand{\trucLG}{
+\draw[->] (0,-1.3) -- (0,1.3) node[left] {$\sin$};
+\draw[->] (-1.3,0) -- (1.3,0) node[below] {$\cos$};
+\draw (0,0) circle (1cm);
+}
+\newcommand{\pointLG}[4]
+{
+\foreach \i in {0,...,#2}
+{
+ \draw[color=#4]
+      plot[mark=#3] coordinates {({#1+\i*360/#2}:1)};
+}
+}
+\makeatletter
+\def\sizeboxEX{9pt}
+\def\EXbox#1{%
+	\begingroup%
+	\setlength{\fboxsep}{0.3ex}%
+	\setlength{\@tempdima}{\sizeboxEX}%
+	\setlength{\@tempdimb}{(\@tempdima-\ht1+\dp1)/2}%
+	\raise-\@tempdimb\hbox{\fbox{\vbox to \@tempdima{%
+				\vfil\hbox to \@tempdima{\hfil#1\hfil}\vfil}}}%
+	\endgroup%
+}
+\def\EXboxTF#1{%
+	\begingroup%
+	\setlength{\fboxsep}{0.3ex}%
+	\setbox1=\hbox{#1}%
+	\setlength{\@tempdima}{\sizeboxEX}%
+	\fbox{\vbox to \@tempdima{%
+				\vfil\hbox to \@tempdima{\hfil\copy1\hfil}\vfil}}%
+	\endgroup%
+}
+\makeatother
+% Môi trường liệt kê dàn theo nhiều dòng khác nhau
+\def\listEXenumi{\alph{enumi})}
+\newlength{\indentlistEX}
+\newenvironment{listEX}[1][]
+{%
+\renewcommand\theenumi{\listEXenumi}%
+\setlength\topsep{0pt}
+\hfill
+\flushleft
+\ifstrempty{#1}%
+  {%
+\settowidth{\indentlistEX}{\space\theenumi\space\space\,}
+\leftskip=\dimexpr\indentlistEX+10pt\relax
+\rightskip=0pt plus 0cm
+\vspace*{-\baselineskip}
+\def\item{\hfil\egroup\penalty50
+\refstepcounter{enumi}%
+\par
+\leavevmode\bgroup\space\hspace*{-\indentlistEX}\theenumi\space} %
+  }
+  {%
+\ifthenelse{#1=1}{
+\settowidth{\indentlistEX}{\space\theenumi\space\space\,}
+\leftskip=\dimexpr\indentlistEX+10pt\relax
+\rightskip=0pt plus 0cm
+\vspace*{-\baselineskip}
+\def\item{\hfil\egroup\penalty50
+\refstepcounter{enumi}%
+\par
+\leavevmode\bgroup\space\hspace*{-\indentlistEX}\theenumi\space} %
+}{
+\dimen0 \linewidth
+\divide\dimen0 by #1\relax
+\advance\dimen0 0pt\relax
+\def\item{\hfil\egroup\penalty50
+\refstepcounter{enumi}%
+\leavevmode\hbox to \dimen0 \bgroup\space\hspace*{10pt}\theenumi\space}%
+  }}
+\leavevmode\bgroup\hskip 0pt plus -1fill
+}
+{%
+\setcounter{enumi}{0}%
+\hfil\egroup\endflushleft
+}
+%Lệnh enumEX
+\newenvironment{enumEX}[2][a)]
+ {  
+\ifthenelse{#2=1}{
+\enumerate[\hspace*{14pt}#1]
+\def\eenumEX{\endenumerate}
+}{
+\NumTabs{#2}
+\setlength\topsep{0pt}
+\flushleft
+\inparaenum[#1]
+\let\latexitem\item
+\def\item{\def\item{\tab\hspace*{14pt}\latexitem}\hspace*{14pt}\latexitem}
+\def\eenumEX{\endinparaenum}
+}
+} 
+{
+\setcounter{enumi}{0}%
+\eenumEX\endflushleft
+}
+%End of file `ex_test.sty'.
